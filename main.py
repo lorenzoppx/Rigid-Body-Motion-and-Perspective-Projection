@@ -466,12 +466,12 @@ class MainWindow(QMainWindow):
         if self.Z_angle!=0:
             self.M = rotation_z_M(self.Z_angle)@self.M
         print('cam2_world:',self.cam2world)
-        self.Tcam = translation_M(self.cam2world[:-1,-1])
-        self.cam2world[:-1,-1] = 0
-        self.Mcam = self.cam2world
+        #self.Tcam = translation_M(self.cam2world[:-1,-1])
+        #self.cam2world[:-1,-1] = 0
+        #self.Mcam = self.cam2world
         print('cam2_world:',self.cam2world)
-        self.cam = translation_M([self.X_move,self.Y_move,self.Z_move])@self.Tcam@self.M@self.Mcam@self.cam
-        #self.cam = translation_M([self.X_move,self.Y_move,self.Z_move])@self.M@self.cam2world@self.cam
+        #self.cam = translation_M([self.X_move,self.Y_move,self.Z_move])@self.M@self.Mcam@self.Tcam@self.cam
+        self.cam = translation_M([self.X_move,self.Y_move,self.Z_move])@self.M@self.cam2world@self.cam
         print('cam:',self.cam)
         self.update_canvas()
         return
