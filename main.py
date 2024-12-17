@@ -84,6 +84,7 @@ class MainWindow(QMainWindow):
         #origin point
         self.point = np.array([[0],[0],[0],[1]])
         self.cam = np.hstack((self.base,self.point))
+        self.cam = rotation_z_M(35)@translation_M([0,-15,10])@rotation_x_M(-35)@rotation_y_M(-90)@rotation_x_M(-90)@self.cam
         self.world = self.cam
         print ('Origin: \n',self.point)
         print ('cam: \n',self.cam)
@@ -416,12 +417,18 @@ class MainWindow(QMainWindow):
                 line_edits_result.append(0)
             print(labels[i],':',line_edits_result[i])
 
-        self.n_pixels_base = line_edits_result[0]
-        self.n_pixels_altura = line_edits_result[1]
-        self.ccd_x = line_edits_result[2]
-        self.ccd_y = line_edits_result[3]
-        self.dist_focal = line_edits_result[4]
-        self.sθ = line_edits_result[5]
+        if line_edits_result[0]!=0:
+            self.n_pixels_base = line_edits_result[0]
+        if line_edits_result[1]!=0:
+            self.n_pixels_altura = line_edits_result[1]
+        if line_edits_result[2]!=0: 
+            self.ccd_x = line_edits_result[2]
+        if line_edits_result[3]!=0:
+            self.ccd_y = line_edits_result[3]
+        if line_edits_result[4]!=0:
+            self.dist_focal = line_edits_result[4]
+        if line_edits_result[5]!=0:
+            self.sθ = line_edits_result[5]
 
         return line_edits_result
     
@@ -566,7 +573,7 @@ class MainWindow(QMainWindow):
         # Plote a câmera também - adicione o código abaixo
 
         #draw_arrows(self.world[:,-1],self.world[:,0:3],self.ax2,3.5)
-        #draw_arrows(self.point,self.base,self.ax2,3.5)
+        draw_arrows(self.point,self.base,self.ax2,2.5)
         draw_arrows(self.cam[:,-1],self.cam[:,0:3],self.ax2,3.5)
 
         #self.canvas2 = FigureCanvas(self.fig2)
