@@ -129,19 +129,6 @@ class MainWindow(QMainWindow):
         return
 
     def set_variables(self):
-        self.objeto_original = [] #modificar
-        self.objeto = self.objeto_original
-        self.cam_original = [] #modificar
-        self.cam = [] #modificar
-        self.px_base = 1280  #modificar
-        self.px_altura = 720 #modificar
-        self.dist_foc = 50 #modificar
-        self.stheta = 0 #modificar
-        self.ox = self.px_base/2 #modificar
-        self.oy = self.px_altura/2 #modificar
-        self.ccd = [36,24] #modificar
-        self.projection_matrix = [] #modificar
-
         self.set_cam()
         self.canvas_layout = None
         self.set_rabbit()
@@ -327,11 +314,11 @@ class MainWindow(QMainWindow):
         self.canvas1 = FigureCanvas(self.fig1)
 
         ##### Acertando limites do eixo X
-        self.ax1.set_xlim([0,1920])
+        self.ax1.set_xlim([0,self.n_pixels_base])
         
         ##### Acertando limites do eixo Y
-        self.ax1.set_ylim([1080,0])
-
+        self.ax1.set_ylim([self.n_pixels_altura,0])
+        
         ##### Criando a função de projeção 
         object_2d = self.projection_2d()
         self.ax1.plot(object_2d[0,:], object_2d[1,:])
@@ -510,13 +497,12 @@ class MainWindow(QMainWindow):
         ##### Função de projeção 
         object_2d = self.projection_2d()
         self.ax1.plot(object_2d[0,:], object_2d[1,:])
-        self.canvas1.draw()
-
+   
         ##### Plotando o object_2d que retornou da projeção
-
         self.ax1.grid('True')
         self.ax1.set_aspect('equal')
-        
+        self.canvas1.draw()
+     
         ##### Plotando o objeto 3D e os referenciais da câmera e do mundo
         self.ax2 = set_plot(self.ax2,lim=[-15,20])
 
