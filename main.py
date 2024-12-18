@@ -84,8 +84,10 @@ class MainWindow(QMainWindow):
         #origin point
         self.point = np.array([[0],[0],[0],[1]])
         self.cam = np.hstack((self.base,self.point))
-        self.cam = rotation_z_M(35)@translation_M([0,-15,10])@rotation_x_M(-35)@rotation_y_M(-90)@rotation_x_M(-90)@self.cam
+        self.cam = rotation_y_M(-90)@rotation_z_M(90)@translation_M([0,8,-25])@self.cam
+#        self.cam = rotation_z_M(35)@translation_M([0,-15,10])@rotation_x_M(-35)@rotation_y_M(-90)@rotation_x_M(-90)@self.cam
         self.world = self.cam
+        
         print ('Origin: \n',self.point)
         print ('cam: \n',self.cam)
 
