@@ -1,4 +1,3 @@
 pip install numpy-stl
-pip install stl
 pip install pyqt5
 pip install matplotlib
