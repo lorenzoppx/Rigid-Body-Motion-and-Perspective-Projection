@@ -89,7 +89,7 @@ class MainWindow(QMainWindow):
         self.cam = self.cam0
 
         # Define uma posição inicial da câmera para boa visualização do objeto
-        self.cam = rotation_y_M(-90)@rotation_z_M(90)@translation_M([0,8,-25])@self.cam
+        self.cam = rotation_y_M(-90)@rotation_z_M(90)@translation_M([0,0,-20])@self.cam
         self.world = self.cam
         
         print ('Origin: \n',self.point)
