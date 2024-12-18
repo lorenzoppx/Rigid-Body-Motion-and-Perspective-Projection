@@ -7,7 +7,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from numpy import array
 import numpy as np
 
-
+# Função para plotar gráfico
 def set_plot(ax=None,figure = None,lim=[-2,2]):
     if figure ==None:
         figure = plt.figure(figsize=(8,8))
@@ -23,7 +23,7 @@ def set_plot(ax=None,figure = None,lim=[-2,2]):
     ax.set_zlabel("z axis")
     return ax
 
-#adding quivers to the plot
+# Função para plotar as setas
 def draw_arrows(point,base,axis,length=1.5):
     # The object base is a matrix, where each column represents the vector
     # of one of the axis, written in homogeneous coordinates (ax,ay,az,0)
@@ -37,30 +37,29 @@ def draw_arrows(point,base,axis,length=1.5):
 
     return axis
 
-
-###### Crie suas funções de translação, rotação, criação de referenciais, plotagem de setas e qualquer outra função que precisar
-
-#Functions for homogenous coordinates
+#Função para realizar translações
 def translation_M(D):
   dx, dy, dz = D
   T = np.array([[1,0,0,dx],[0,1,0,dy],[0,0,1,dz],[0,0,0,1]])
   return T
 
+#Função para realizar rotação em X
 def rotation_x_M(angle):
   angle = np.deg2rad(-angle)
   Rx = np.array([[1,0,0,0],[0,np.cos(angle),np.sin(angle),0],[0,-np.sin(angle),np.cos(angle),0],[0,0,0,1]])
   return Rx
 
+#Função para realizar rotação em Y
 def rotation_y_M(angle):
   angle = np.deg2rad(-angle)
   Ry = np.array([[np.cos(angle),0,-np.sin(angle),0],[0,1,0,0],[np.sin(angle),0,np.cos(angle),0],[0,0,0,1]])
   return Ry
 
+#Função para realizar rotação em Z
 def rotation_z_M(angle):
   angle = np.deg2rad(-angle)
   Rz = np.array([[np.cos(angle),np.sin(angle),0,0],[-np.sin(angle),np.cos(angle),0,0],[0,0,1,0],[0,0,0,1]])
   return Rz
-
 
 
 class MainWindow(QMainWindow):
@@ -69,11 +68,13 @@ class MainWindow(QMainWindow):
 
         #definindo as variaveis
         self.set_variables()
+
         #Ajustando a tela    
         self.setWindowTitle("Grid Layout")
         self.setGeometry(100, 100,1280 , 720)
         self.setup_ui()
 
+    # Função que seta a origem, a câmera e define sua posição inicial
     def set_cam(self):
         # base vector values
         e1 = np.array([[1],[0],[0],[0]]) # X
@@ -81,25 +82,28 @@ class MainWindow(QMainWindow):
         e3 = np.array([[0],[0],[1],[0]]) # Z
         self.base = np.hstack((e1,e2,e3))
         print ('Cartesian base: \n',self.base)
-        #origin point
+        
+        # Ponto de origem
         self.point = np.array([[0],[0],[0],[1]])
-        self.cam = np.hstack((self.base,self.point))
+        self.cam0 = np.hstack((self.base,self.point))
+        self.cam = self.cam0
+
+        # Define uma posição inicial da câmera para boa visualização do objeto
         self.cam = rotation_y_M(-90)@rotation_z_M(90)@translation_M([0,8,-25])@self.cam
-#        self.cam = rotation_z_M(35)@translation_M([0,-15,10])@rotation_x_M(-35)@rotation_y_M(-90)@rotation_x_M(-90)@self.cam
         self.world = self.cam
         
         print ('Origin: \n',self.point)
         print ('cam: \n',self.cam)
 
         self.world0 = self.world
-        self.cam0 = self.cam
 
-    def set_elephant(self):
+    # Função que carrega o STL e seta o objeto 3d
+    def set_rabbit(self):
         from stl import mesh
-        print("Building -> Elephant")
+        print("Building -> Rabbit")
 
         # Load the STL files and add the vectors to the plot
-        self.elephant = mesh.Mesh.from_file('coelho.stl')
+        self.rabbit = mesh.Mesh.from_file('coelho.stl')
         
         def scale(k):
             M = (np.eye(4)) * k
@@ -108,63 +112,21 @@ class MainWindow(QMainWindow):
         # Define scale matrix
         S = scale(0.1)
 
-        x = self.elephant.x.flatten()
-        y = self.elephant.y.flatten()
-        z = self.elephant.z.flatten()
+        x = self.rabbit.x.flatten()
+        y = self.rabbit.y.flatten()
+        z = self.rabbit.z.flatten()
         
         # Create the 3D object from the x,y,z coordinates and add the additional array of ones to 
         # represent the object using homogeneous coordinates
-        self.elephant = np.array([x.T, y.T, z.T, np.ones(x.size)])
+        self.rabbit = np.array([x.T, y.T, z.T, np.ones(x.size)])
         
         # Extract vectors of mesh
-        self.elephant = self.elephant
+        self.rabbit = self.rabbit
 
         # Apply Scale
-        self.elephant = S@self.elephant
+        self.rabbit = S@self.rabbit
     
         return
-
-
-    #Creating a house
-    def set_house(self):
-        self.house = np.array([[0,         0,         0],
-                [0,  -10.0000,         0],
-                [0, -10.0000,   12.0000],
-                [0,  -10.4000,   11.5000],
-                [0,   -5.0000,   16.0000],
-                [0,         0,   12.0000],
-                [0,    0.5000,   11.4000],
-                [0,         0,   12.0000],
-                [0,         0,         0],
-        [-12.0000,         0,         0],
-        [-12.0000,   -5.0000,         0],
-        [-12.0000,  -10.0000,         0],
-                [0,  -10.0000,         0],
-                [0,  -10.0000,   12.0000],
-        [-12.0000,  -10.0000,   12.0000],
-        [-12.0000,         0,   12.0000],
-                [0,         0,   12.0000],
-                [0,  -10.0000,   12.0000],
-                [0,  -10.5000,   11.4000],
-        [-12.0000,  -10.5000,   11.4000],
-        [-12.0000,  -10.0000,   12.0000],
-        [-12.0000,   -5.0000,   16.0000],
-                [0,   -5.0000,   16.0000],
-                [0,    0.5000,   11.4000],
-        [-12.0000,    0.5000,   11.4000],
-        [-12.0000,         0,   12.0000],
-        [-12.0000,   -5.0000,   16.0000],
-        [-12.0000,  -10.0000,   12.0000],
-        [-12.0000,  -10.0000,         0],
-        [-12.0000,   -5.0000,         0],
-        [-12.0000,         0,         0],
-        [-12.0000,         0,   12.0000],
-        [-12.0000,         0,         0]])
-
-        self.house = np.transpose(self.house)
-
-        #add a vector of ones to the house matrix to represent the house in homogeneous coordinates
-        self.house = np.vstack([self.house, np.ones(np.size(self.house,1))])
 
     def set_variables(self):
         self.objeto_original = [] #modificar
@@ -179,11 +141,10 @@ class MainWindow(QMainWindow):
         self.oy = self.px_altura/2 #modificar
         self.ccd = [36,24] #modificar
         self.projection_matrix = [] #modificar
+
         self.set_cam()
-        #self.world = translation_M([1,1,1])@self.world
         self.canvas_layout = None
-        self.set_house()
-        self.set_elephant()
+        self.set_rabbit()
 
         self.n_pixels_base = 1920
         self.n_pixels_altura = 1920
@@ -191,7 +152,6 @@ class MainWindow(QMainWindow):
         self.ccd_y = 36
         self.dist_focal = 25
         self.sθ = 0
-
 
     def setup_ui(self):
         # Criar o layout de grade
@@ -352,8 +312,6 @@ class MainWindow(QMainWindow):
         return line_edit_widget
 
     def create_matplotlib_canvas(self):
-        #if self.canvas_layout is not None:
-        #    self.canvas_layout.deleteLater()
         # Criar um widget para exibir os gráficos do Matplotlib
         canvas_widget = QWidget()
         self.canvas_layout = QHBoxLayout()
@@ -364,18 +322,17 @@ class MainWindow(QMainWindow):
         self.ax1.set_title("Imagem")
         self.canvas1 = FigureCanvas(self.fig1)
 
-        # Acerte os limites do eixo X
+        ##### Acertando limites do eixo X
         self.ax1.set_xlim([0,1920])
-        # Acerte os limites do eixo Y
-        # Para inverter, basta colocar o valor máximo primeiro e o valor mínimo depois
+        
+        ##### Acertando limites do eixo Y
         self.ax1.set_ylim([1080,0])
 
-        ##### Você deverá criar a função de projeção 
+        ##### Criando a função de projeção 
         object_2d = self.projection_2d()
         self.ax1.plot(object_2d[0,:], object_2d[1,:])
 
-        ##### Falta plotar o object_2d que retornou da projeção
-          
+        ##### Plotando o object_2d que retornou da projeção
         self.ax1.grid('True')
         self.ax1.set_aspect('equal')
         self.canvas_layout.addWidget(self.canvas1)
@@ -384,31 +341,25 @@ class MainWindow(QMainWindow):
         self.fig2 = plt.figure()
         self.ax2 = self.fig2.add_subplot(111, projection='3d')
         
-        ##### Falta plotar o seu objeto 3D e os referenciais da câmera e do mundo
-
+        ##### Plotando o objeto 3D e os referenciais da câmera e do mundo
         self.ax2 = set_plot(self.ax2,lim=[-15,20])
-        #draw_arrows(self.point,self.base,self.ax2)
-        self.ax2.plot3D(self.elephant[0,:], self.elephant[1,:], self.elephant[2,:], 'red')
-        # Plotando a quina da casa que está em (0,0,0) para servir de referência
-        #self.ax2.scatter(self.house[0,0], self.house[1,0], self.house[2,0],'b')
-        # Plote a câmera também - adicione o código abaixo
+        
+        # Plotando o objeto 3D
+        self.ax2.plot3D(self.rabbit[0,:], self.rabbit[1,:], self.rabbit[2,:], 'red')
+        
+        # Plotando o referencial do mundo
+        draw_arrows(self.point,self.base,self.ax2,3.5)
 
-        #draw_arrows(self.world[:,-1],self.world[:,0:3],self.ax2)
-        #draw_arrows(self.point,self.base,self.ax2,1.5)
+        # Plotando o referencial da câmera
         draw_arrows(self.cam[:,-1],self.cam[:,0:3],self.ax2,3.5)
 
         self.canvas2 = FigureCanvas(self.fig2)
         self.canvas2.draw()
-
         self.canvas_layout.addWidget(self.canvas2)
         
-        #canvas_widget.update()
-        #canvas_widget.updatesEnabled()
         # Retornar o widget de canvas
         return canvas_widget
 
-
-    ##### Você deverá criar as suas funções aqui
     def convert_line_edits_intr(self,line_edits):
         labels = ['n_pixels_base:', 'n_pixels_altura:', 'ccd_x:', 'ccd_y:', 'dist_focal:', 'sθ:']
         line_edits_result = []
@@ -453,6 +404,7 @@ class MainWindow(QMainWindow):
 
         return line_edits_result
     
+    # Função para atualizar parâmetros intrínsecos
     def update_params_intrinsc(self, line_edits):
         print('-Update intrinsc-')
         self.convert_line_edits_intr(line_edits)
@@ -461,6 +413,7 @@ class MainWindow(QMainWindow):
         self.update_canvas()
         return 
 
+    # Função para atualizar parâmetros extrinsecos - referencial mundo 
     def update_world(self,line_edits):
         print('-Update world-')
         self.convert_line_edits_ref(line_edits)
@@ -475,16 +428,12 @@ class MainWindow(QMainWindow):
         if self.Z_angle!=0:
             self.M = rotation_z_M(self.Z_angle)@self.M
         print('cam2_world:',self.cam2world)
-        #self.Tcam = translation_M(self.cam2world[:-1,-1])
-        #self.cam2world[:-1,-1] = 0
-        #self.Mcam = self.cam2world
-        print('cam2_world:',self.cam2world)
-        #self.cam = translation_M([self.X_move,self.Y_move,self.Z_move])@self.M@self.Mcam@self.Tcam@self.cam
         self.cam = translation_M([self.X_move,self.Y_move,self.Z_move])@self.M@self.cam2world@self.cam
         print('cam:',self.cam)
         self.update_canvas()
         return
 
+    # Função para atualizar parâmetros extrinsecos - referencial câmera 
     def update_cam(self,line_edits):
         print('-Update cam-')
         self.convert_line_edits_ref(line_edits)
@@ -503,6 +452,7 @@ class MainWindow(QMainWindow):
         self.update_canvas()
         return 
     
+    # Faz a projeção do objeto em relação a posição da câmera
     def projection_2d(self):
         self.K_pi = np.eye(3)
         self.K_pi = np.hstack((self.K_pi,np.zeros([3,1])))
@@ -514,84 +464,77 @@ class MainWindow(QMainWindow):
         print("cam0:",matrix_cam_view )
 
         # Projeção e criação da imagem
-
-        self.house_cam_view = matrix_cam_view@self.elephant
-        print("cam0:",self.house_cam_view )
+        self.object_cam_view = matrix_cam_view@self.rabbit
+        print("cam0:",self.object_cam_view )
 
         # Preparação das coordenadas na forma cartesiana
+        self.object_cam_view[0,:] = self.object_cam_view[0,:]/self.object_cam_view[2,:]
+        self.object_cam_view[1,:] = self.object_cam_view[1,:]/self.object_cam_view[2,:]
+        self.object_cam_view[2,:] = 1
 
-        self.house_cam_view[0,:] = self.house_cam_view[0,:]/self.house_cam_view[2,:]
-        self.house_cam_view[1,:] = self.house_cam_view[1,:]/self.house_cam_view[2,:]
-        self.house_cam_view[2,:] = 1
+        print("cam0:",self.object_cam_view)
 
-        print("cam0:",self.house_cam_view)
-
-        return self.house_cam_view
+        return self.object_cam_view
     
+    # Função que retorna a matrix de parâmetros intrinsecos
     def generate_intrinsic_params_matrix(self):
-        # Distancia focal em pixel
         f = self.dist_focal
         fsx = f*self.n_pixels_base/self.ccd_x
         fsy = f*self.n_pixels_altura/self.ccd_y
         ox = self.n_pixels_altura/2
         oy = self.n_pixels_base/2
-        # matriz de parametros intrinsecos
+        # Constroi matriz de parâmetros intrinsecos
         self.K = np.array([[fsx,0,0],[self.sθ,fsy,0],[ox,oy,1]])
         self.K = self.K.T
         return self.K
     
+    # Função para atualizar visualização dos gráficos
     def update_canvas(self):
-        # Criar um objeto FigureCanvas para exibir o gráfico 2D
         self.canvas1.flush_events()
         self.canvas2.flush_events()
         self.ax1.cla()
         self.ax2.cla()
 
         self.ax1.set_title("Imagem")
-        #self.canvas1 = FigureCanvas(self.fig1)
-        # Acerte os limites do eixo X
+
+        ##### Acertando limites do eixo X
         self.ax1.set_xlim([0,self.n_pixels_base])
-        # Acerte os limites do eixo Y
-        # Para inverter, basta colocar o valor máximo primeiro e o valor mínimo depois
+
+        ##### Acertando limites do eixo Y
         self.ax1.set_ylim([self.n_pixels_altura,0])
         
-        ##### Você deverá criar a função de projeção 
+        ##### Função de projeção 
         object_2d = self.projection_2d()
         self.ax1.plot(object_2d[0,:], object_2d[1,:])
         self.canvas1.draw()
-        ##### Falta plotar o object_2d que retornou da projeção
-          
+
+        ##### Plotando o object_2d que retornou da projeção
+
         self.ax1.grid('True')
         self.ax1.set_aspect('equal')
         
-        ##### Falta plotar o seu objeto 3D e os referenciais da câmera e do mundo
-
+        ##### Plotando o objeto 3D e os referenciais da câmera e do mundo
         self.ax2 = set_plot(self.ax2,lim=[-15,20])
 
-        #draw_arrows(self.point,self.base,self.ax2)
-        self.ax2.plot3D(self.elephant[0,:], self.elephant[1,:], self.elephant[2,:], 'red')
-        # Plotando a quina da casa que está em (0,0,0) para servir de referência
-        #self.ax2.scatter(self.house[0,0], self.house[1,0], self.house[2,0],'b')
-        # Plote a câmera também - adicione o código abaixo
-
-        #draw_arrows(self.world[:,-1],self.world[:,0:3],self.ax2,3.5)
-        draw_arrows(self.point,self.base,self.ax2,2.5)
+        # Plotando o objeto 3D
+        self.ax2.plot3D(self.rabbit[0,:], self.rabbit[1,:], self.rabbit[2,:], 'red')
+        
+        # Plotando referencial do mundo
+        draw_arrows(self.point,self.base,self.ax2,3.5)
+        
+        # Plotando referencial da câmera
         draw_arrows(self.cam[:,-1],self.cam[:,0:3],self.ax2,3.5)
 
-        #self.canvas2 = FigureCanvas(self.fig2)
         self.canvas2.draw()
         
-        #canvas_widget.update()
-        #canvas_widget.updatesEnabled()
         # Retornar o widget de canvas
         return
-    
+
+    # Função para resetar visualização dos gráficos - posiciona câmera na origem
     def reset_canvas(self):
         print('-Reset canvas-')
+        # Posiciona câmera na origem do mundo
         self.cam = self.cam0
-        #self.ax2.remove()
-        #self.fig2.clear()
-        #self.fig1.clear()
         self.update_canvas()
         return
     
