@@ -159,8 +159,12 @@ class MainWindow(QMainWindow):
 
         # Criar os widgets
         line_edit_widget1 = self.create_world_widget("Ref mundo")
-        line_edit_widget2  = self.create_cam_widget("Ref camera")
-        line_edit_widget3  = self.create_intrinsic_widget("Params instr")
+        line_edit_widget2 = self.create_cam_widget("Ref camera")
+        line_edit_widget3 = self.create_intrinsic_widget("Params instr")
+        
+        self.world_widget = line_edit_widget1
+        self.cam_widget = line_edit_widget2
+        self.intrinsic_widget = line_edit_widget3
 
         self.canvas = self.create_matplotlib_canvas()
 
@@ -527,6 +531,9 @@ class MainWindow(QMainWindow):
 
         self.canvas2.draw()
         
+        # Limpa os campos de digitação
+        self.reset_params()
+
         # Retornar o widget de canvas
         return
 
@@ -538,6 +545,17 @@ class MainWindow(QMainWindow):
         self.update_canvas()
         return
     
+    def reset_params(self):
+        # Lista de todos os widgets que contêm os campos de texto
+        widgets_to_clear = [self.world_widget, self.cam_widget, self.intrinsic_widget]
+
+        for widget in widgets_to_clear:
+            # Encontrar todas as QLineEdit no widget atual
+            line_edits = widget.findChildren(QLineEdit)
+            for line_edit in line_edits:
+                line_edit.clear()
+        return
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     main_window = MainWindow()
