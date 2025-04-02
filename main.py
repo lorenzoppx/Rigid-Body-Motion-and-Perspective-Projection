@@ -472,10 +472,10 @@ class MainWindow(QMainWindow):
         f = self.dist_focal
         fsx = f*self.n_pixels_base/self.ccd_x
         fsy = f*self.n_pixels_altura/self.ccd_y
-        ox = self.n_pixels_altura/2
-        oy = self.n_pixels_base/2
+        ox = self.n_pixels_base/2
+        oy = self.n_pixels_altura/2
         # Constroi matriz de parâmetros intrinsecos
-        self.K = np.array([[fsx,0,0],[self.sθ,fsy,0],[ox,oy,1]])
+        self.K = np.array([[fsx,0,0],[self.sθ*f,fsy,0],[ox,oy,1]])
         self.K = self.K.T
         return self.K
     
